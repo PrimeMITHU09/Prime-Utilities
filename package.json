@@ -1,0 +1,20 @@
+{
+  "name": "prime-utilities",
+  "version": "1.0.0",
+  "description": "Windows System Optimization, Debloating, Software Installer & Repair Utility Suite",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "windows-debloat",
+    "winget",
+    "tweaks",
+    "christitus",
+    "winutil",
+    "prime-utilities"
+  ],
+  "author": "Prime Utilities",
+  "license": "MIT"
+}

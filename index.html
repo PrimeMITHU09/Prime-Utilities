@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prime Utilities - WinUtil 1-to-1 Edition with App Icons</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="top-nav">
+    <div class="top-brand">
+      <img src="assets/marshmello_logo.jpg" class="nav-logo" alt="Marshmello Logo">
+    </div>
+    <div class="top-tabs">
+      <button class="nav-tab active" data-tab="tab-install">Install</button>
+      <button class="nav-tab" data-tab="tab-tweaks">Tweaks</button>
+      <button class="nav-tab" data-tab="tab-config">Config</button>
+      <button class="nav-tab" data-tab="tab-updates">Updates</button>
+      <button class="nav-tab" data-tab="tab-creator">Win11 Creator</button>
+    </div>
+    <div class="top-search-bar">
+      <input type="text" id="app-search" placeholder="Search applications...">
+      <i class="fa-solid fa-magnifying-glass"></i>
+    </div>
+    <div class="top-controls">
+      <button title="Toggle Theme"><i class="fa-solid fa-sun"></i></button>
+      <button title="Font Size"><i class="fa-solid fa-font"></i></button>
+      <button title="Settings"><i class="fa-solid fa-gear"></i></button>
+    </div>
+  </header>
+
+  <!-- Filters Sub-header -->
+  <div class="filters-bar">
+    <span class="filters-label">Filters</span>
+    <button class="filter-chip active">All</button>
+    <button class="filter-chip">Browsers</button>
+    <button class="filter-chip">Communications</button>
+    <button class="filter-chip">Development</button>
+    <button class="filter-chip">Games</button>
+    <button class="filter-chip">Microsoft Tools</button>
+    <button class="filter-chip">Multimedia Tools</button>
+    <button class="filter-chip">Pro Tools</button>
+    <button class="filter-chip">Utilities</button>
+  </div>
+
+  <!-- Main Body Layout -->
+  <div class="win-body">
+
+    <!-- Left Sidebar -->
+    <aside class="win-sidebar">
+      <div>
+        <div class="section-title">Actions</div>
+        <button class="action-btn primary" id="btn-install-selected">Install/Upgrade Applications</button>
+        <button class="action-btn">Uninstall Applications</button>
+        <button class="action-btn">Upgrade all Applications</button>
+      </div>
+
+      <div>
+        <div class="section-title">Package Manager</div>
+        <div class="radio-group">
+          <label><input type="radio" name="pkg" value="choco"> Chocolatey</label>
+          <label><input type="radio" name="pkg" value="winget" checked> WinGet</label>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-title">Selection</div>
+        <div class="status-indicator">
+          <div class="status-dot-green"></div> Free and Open Source Software
+        </div>
+        <button class="action-btn" id="btn-clear-sel">Clear Selection</button>
+        <button class="action-btn">Collapse All Categories</button>
+        <button class="action-btn">Expand All Categories</button>
+        <button class="action-btn" id="btn-sel-count">Selected Apps: 0</button>
+        <button class="action-btn">Show Installed Apps</button>
+      </div>
+    </aside>
+
+    <!-- Right Content Area Dynamically Loaded -->
+    <main class="win-content" id="pnl-app-categories">
+    </main>
+  </div>
+
+  <!-- Terminal Console -->
+  <div class="win-footer-console" id="terminal-output">
+[PRIME UTILITIES 1-TO-1 CLONE READY] Loaded 90+ applications with authentic brand icons.
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
