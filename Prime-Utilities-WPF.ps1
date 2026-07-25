@@ -1,16 +1,24 @@
 <#
 .SYNOPSIS
-    Prime Utilities - WinUtil 1-to-1 Master Edition (Live Terminal Output Engine)
+    Prime Utilities - WinUtil 1-to-1 Master Edition (Live iwr | iex Online Execution Engine)
 .DESCRIPTION
-    Spawns live elevated PowerShell Administrator windows for all tasks so user sees real-time progress.
+    Fixes $PSScriptRoot empty string binding error and enables live online execution via GitHub.
 #>
 
 Add-Type -AssemblyName PresentationFramework, PresentationCore, WindowsBase, System.Windows.Forms
 
-$logoPath = Join-Path $PSScriptRoot "assets\marshmello_logo.jpg"
-$jsonPath = Join-Path $PSScriptRoot "config\applications.json"
-$iconsFolder = Join-Path $PSScriptRoot "assets\icons"
-$installScriptPath = Join-Path $PSScriptRoot "scripts\Install-Apps.ps1"
+$githubRawBase = "https://raw.githubusercontent.com/PrimeMITHU09/Prime-Utilities/main"
+
+# Fallback for $PSScriptRoot when executed via iwr | iex
+$scriptDir = $PSScriptRoot
+if ([string]::IsNullOrWhiteSpace($scriptDir)) {
+    $scriptDir = "."
+}
+
+$logoPath = Join-Path $scriptDir "assets\marshmello_logo.jpg"
+$jsonPath = Join-Path $scriptDir "config\applications.json"
+$iconsFolder = Join-Path $scriptDir "assets\icons"
+$installScriptPath = Join-Path $scriptDir "scripts\Install-Apps.ps1"
 
 # Icon Strings (UTF-32 Safe)
 $chSun   = [char]::ConvertFromUtf32(0x263C)  # ☼ (Day / Light)
@@ -20,11 +28,21 @@ $chMin   = [char]::ConvertFromUtf32(0x2014)  # —
 $chMax   = [char]::ConvertFromUtf32(0x25A1)  # 🗖
 $chClose = [char]::ConvertFromUtf32(0x2715)  # ✕
 
-# Load Full App Database
+# Load Full App Database (Local Disk + Live Web iwr | iex Fallback)
 $appsData = @{}
 if (Test-Path $jsonPath) {
     try {
         $rawJson = Get-Content $jsonPath -Raw | ConvertFrom-Json
+        foreach ($prop in $rawJson.psobject.Properties) {
+            $appsData[$prop.Name] = $prop.Value
+        }
+    } catch {}
+}
+
+if ($appsData.Count -eq 0) {
+    try {
+        $webJsonStr = (New-Object System.Net.WebClient).DownloadString("$githubRawBase/config/applications.json")
+        $rawJson = $webJsonStr | ConvertFrom-Json
         foreach ($prop in $rawJson.psobject.Properties) {
             $appsData[$prop.Name] = $prop.Value
         }
@@ -903,56 +921,6 @@ function Apply-ThemeStyles([string]$mode) {
     }
 }
 
-# Initial Theme Apply: Night Mode by Default (Dark Theme)
-Apply-ThemeStyles "Night"
-
-if ($btnThemeToggle) {
-    $btnThemeToggle.Add_Click({
-        $global:currentThemeState = ($global:currentThemeState + 1) % 2
-        if ($global:currentThemeState -eq 0) {
-            Apply-ThemeStyles "Day"
-        } else {
-            Apply-ThemeStyles "Night"
-        }
-    })
-}
-
-# Wire Live Terminal Executions for Action Buttons
-$btnRunTweaks = $window.FindName("btnRunTweaks")
-if ($btnRunTweaks) {
-    $btnRunTweaks.Add_Click({
-        Run-LiveTerminalTask "Running Selected System Tweaks" "Write-Host 'Applying CTT System Tweaks...' -ForegroundColor Green; Start-Sleep -Seconds 2; Write-Host 'Tweaks applied successfully!' -ForegroundColor Green"
-    })
-}
-
-$btnUndoTweaks = $window.FindName("btnUndoTweaks")
-if ($btnUndoTweaks) {
-    $btnUndoTweaks.Add_Click({
-        Run-LiveTerminalTask "Undoing Selected Tweaks" "Write-Host 'Reverting CTT System Tweaks...' -ForegroundColor Yellow; Start-Sleep -Seconds 2; Write-Host 'Tweaks reverted successfully!' -ForegroundColor Green"
-    })
-}
-
-$btnFixSysCorruption = $window.FindName("btnFixSysCorruption")
-if ($btnFixSysCorruption) {
-    $btnFixSysCorruption.Add_Click({
-        Run-LiveTerminalTask "System Corruption Scan (SFC & DISM)" "sfc /scannow; DISM.exe /Online /Cleanup-Image /RestoreHealth"
-    })
-}
-
-$btnFixNetReset = $window.FindName("btnFixNetReset")
-if ($btnFixNetReset) {
-    $btnFixNetReset.Add_Click({
-        Run-LiveTerminalTask "Network Stack Reset" "ipconfig /flushdns; netsh winsock reset; netsh int ip reset"
-    })
-}
-
-$btnFixWinUpdateReset = $window.FindName("btnFixWinUpdateReset")
-if ($btnFixWinUpdateReset) {
-    $btnFixWinUpdateReset.Add_Click({
-        Run-LiveTerminalTask "Windows Update Reset" "net stop wuauserv; net stop bits; Remove-Item C:\Windows\SoftwareDistribution\* -Recurse -Force -ErrorAction SilentlyContinue; net start wuauserv"
-    })
-}
-
 # Custom 1-to-1 Transparent Round About Dialog Popup matching Screenshot 8
 function Show-AboutDialog {
     $aboutXaml = @"
@@ -1256,7 +1224,12 @@ if ($btnInstallSelected) {
             return
         }
         $appArgs = $toInstall -join " "
-        Start-Process powershell -ArgumentList "-ExecutionPolicy Bypass -File `"$installScriptPath`" -Apps $appArgs" -Verb RunAs
+        if (Test-Path $installScriptPath) {
+            Start-Process powershell -ArgumentList "-ExecutionPolicy Bypass -File `"$installScriptPath`" -Apps $appArgs" -Verb RunAs
+        } else {
+            $webCmd = "(New-Object System.Net.WebClient).DownloadString('$githubRawBase/scripts/Install-Apps.ps1') | Invoke-Expression"
+            Start-Process powershell -ArgumentList "-ExecutionPolicy Bypass -Command `"$webCmd -Apps $appArgs`"" -Verb RunAs
+        }
     })
 }
 
@@ -1385,5 +1358,16 @@ foreach ($cat in $categories) {
 
 # Initial Theme Apply: Night Mode by Default (Dark Theme)
 Apply-ThemeStyles "Night"
+
+if ($btnThemeToggle) {
+    $btnThemeToggle.Add_Click({
+        $global:currentThemeState = ($global:currentThemeState + 1) % 2
+        if ($global:currentThemeState -eq 0) {
+            Apply-ThemeStyles "Day"
+        } else {
+            Apply-ThemeStyles "Night"
+        }
+    })
+}
 
 $window.ShowDialog() | Out-Null
