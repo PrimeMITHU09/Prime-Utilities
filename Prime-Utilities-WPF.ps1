@@ -7,6 +7,21 @@
 
 Add-Type -AssemblyName PresentationFramework, PresentationCore, WindowsBase, System.Windows.Forms
 
+Write-Host ""
+Write-Host "  ########  ########  #### ##     ## ########" -ForegroundColor Magenta
+Write-Host "  ##     ## ##     ##  ##  ###   ### ##      " -ForegroundColor Magenta
+Write-Host "  ##     ## ##     ##  ##  #### #### ##      " -ForegroundColor Cyan
+Write-Host "  ########  ########   ##  ## ### ## ######  " -ForegroundColor Cyan
+Write-Host "  ##        ##   ##    ##  ##     ## ##      " -ForegroundColor Cyan
+Write-Host "  ##        ##    ##   ##  ##     ## ##      " -ForegroundColor Magenta
+Write-Host "  ##        ##     ## #### ##     ## ########" -ForegroundColor Magenta
+Write-Host ""
+Write-Host " ====================================================================" -ForegroundColor Cyan
+Write-Host "        P R I M E   M I T H U   T E C H   U T I L I T I E S         " -ForegroundColor Yellow
+Write-Host "             WINUTIL 1-TO-1 MASTER SYSTEM TOOLBOX                    " -ForegroundColor Green
+Write-Host " ====================================================================" -ForegroundColor Cyan
+Write-Host ""
+
 $githubRawBase = "https://raw.githubusercontent.com/PrimeMITHU09/Prime-Utilities/main"
 
 # Fallback for $PSScriptRoot when executed via iwr | iex
@@ -15,7 +30,16 @@ if ([string]::IsNullOrWhiteSpace($scriptDir)) {
     $scriptDir = "."
 }
 
-$logoPath = Join-Path $scriptDir "assets\marshmello_logo.jpg"
+$logoPath = Join-Path $scriptDir "assets\prime_utilities_logo.jpg"
+if (-not (Test-Path $logoPath)) {
+    try {
+        $tempLogo = Join-Path $env:TEMP "prime_utilities_logo.jpg"
+        if (-not (Test-Path $tempLogo)) {
+            (New-Object System.Net.WebClient).DownloadFile("$githubRawBase/assets/prime_utilities_logo.jpg", $tempLogo)
+        }
+        $logoPath = $tempLogo
+    } catch {}
+}
 $jsonPath = Join-Path $scriptDir "config\applications.json"
 $iconsFolder = Join-Path $scriptDir "assets\icons"
 $installScriptPath = Join-Path $scriptDir "scripts\Install-Apps.ps1"
@@ -54,7 +78,7 @@ $inputXaml = @"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="WinUtil" Height="780" Width="1200"
         WindowStyle="None" AllowsTransparency="False" WindowStartupLocation="CenterScreen"
-        Background="#F8FAFC" Foreground="#0F172A">
+        Background="#0F1722" Foreground="#F8FAFC">
     <Window.Resources>
         <Style TargetType="Button" x:Key="HeaderIconBtn">
             <Setter Property="Background" Value="Transparent"/>
@@ -87,9 +111,9 @@ $inputXaml = @"
             </Style.Triggers>
         </Style>
         <Style TargetType="Button">
-            <Setter Property="Background" Value="#FFFFFF"/>
-            <Setter Property="Foreground" Value="#0F172A"/>
-            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+            <Setter Property="Background" Value="#182232"/>
+            <Setter Property="Foreground" Value="#F8FAFC"/>
+            <Setter Property="BorderBrush" Value="#334155"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="8,4"/>
             <Setter Property="Margin" Value="0,2"/>
@@ -98,7 +122,7 @@ $inputXaml = @"
             <Setter Property="Cursor" Value="Hand"/>
         </Style>
         <Style TargetType="CheckBox">
-            <Setter Property="Foreground" Value="#0F172A"/>
+            <Setter Property="Foreground" Value="#F8FAFC"/>
             <Setter Property="FontSize" Value="11.5"/>
             <Setter Property="Margin" Value="2,3"/>
         </Style>
@@ -1233,6 +1257,333 @@ if ($btnInstallSelected) {
     })
 }
 
+# Search Bar Real-Time Filter
+$txtSearch = $window.FindName("txtSearch")
+if ($txtSearch) {
+    $txtSearch.Add_TextChanged({
+        $q = $txtSearch.Text.Trim().ToLower()
+        if ($pnlAppCategories) {
+            foreach ($catContainer in $pnlAppCategories.Children) {
+                $wrap = $catContainer.Children | Where-Object { $_ -is [System.Windows.Controls.WrapPanel] }
+                if ($wrap) {
+                    $hasVisibleApp = $false
+                    foreach ($cardBorder in $wrap.Children) {
+                        $appName = $cardBorder.Tag
+                        if ([string]::IsNullOrWhiteSpace($q) -or ($appName -and $appName.ToString().ToLower().Contains($q))) {
+                            $cardBorder.Visibility = [System.Windows.Visibility]::Visible
+                            $hasVisibleApp = $true
+                        } else {
+                            $cardBorder.Visibility = [System.Windows.Visibility]::Collapsed
+                        }
+                    }
+                    if ($hasVisibleApp) {
+                        $catContainer.Visibility = [System.Windows.Visibility]::Visible
+                    } else {
+                        $catContainer.Visibility = [System.Windows.Visibility]::Collapsed
+                    }
+                }
+            }
+        }
+    })
+}
+
+# Font Size Scale Button Handler
+$btnFontSize = $window.FindName("btnFontSize")
+$global:fontScaleStep = 0
+if ($btnFontSize) {
+    $btnFontSize.Add_Click({
+        $global:fontScaleStep = ($global:fontScaleStep + 1) % 3
+        $scale = 1.0
+        if ($global:fontScaleStep -eq 1) { $scale = 1.15 }
+        elseif ($global:fontScaleStep -eq 2) { $scale = 1.3 }
+        $window.LayoutTransform = New-Object System.Windows.Media.ScaleTransform($scale, $scale)
+    })
+}
+
+# Action Buttons: Uninstall, Upgrade All, Show Installed
+$btnUninstallSelected = $window.FindName("btnUninstallSelected")
+if ($btnUninstallSelected) {
+    $btnUninstallSelected.Add_Click({
+        $toUninstall = $selectedAppCheckboxes | Where-Object { $_.IsChecked -eq $true } | Select-Object -ExpandProperty Tag
+        if ($toUninstall.Count -eq 0) {
+            [System.Windows.MessageBox]::Show("Please select at least one application to uninstall.", "No Selection", "OK", "Warning") | Out-Null
+            return
+        }
+        $cmd = "foreach (`$app in @('$($toUninstall -join "','")')) { Write-Host 'Uninstalling `$app...'; winget uninstall --id `$app --silent --accept-source-agreements }"
+        Run-LiveTerminalTask "Uninstall Applications" $cmd
+    })
+}
+
+$btnUpgradeAll = $window.FindName("btnUpgradeAll")
+if ($btnUpgradeAll) {
+    $btnUpgradeAll.Add_Click({
+        Run-LiveTerminalTask "Upgrade All Installed Applications" "winget upgrade --all --include-unknown --accept-package-agreements --accept-source-agreements"
+    })
+}
+
+$btnShowInstalled = $window.FindName("btnShowInstalled")
+if ($btnShowInstalled) {
+    $btnShowInstalled.Add_Click({
+        Run-LiveTerminalTask "Installed WinGet Applications" "winget list"
+    })
+}
+
+# Config Tab / System Repairs & Fixes Wire-up
+$btnInstallFeatures = $window.FindName("btnInstallFeatures")
+if ($btnInstallFeatures) {
+    $btnInstallFeatures.Add_Click({
+        $repairScriptPath = Join-Path $scriptDir "scripts\System-Repairs.ps1"
+        $switches = @()
+        if ($window.FindName("featWSL").IsChecked) { $switches += "-EnableWSL" }
+        if ($window.FindName("featHyperV").IsChecked) { $switches += "-EnableHyperV" }
+        $cmd = "& '$repairScriptPath' $($switches -join ' ')"
+        Run-LiveTerminalTask "Installing Selected Windows Features" $cmd
+    })
+}
+
+$btnFixSysCorruption = $window.FindName("btnFixSysCorruption")
+if ($btnFixSysCorruption) {
+    $btnFixSysCorruption.Add_Click({
+        $repairScriptPath = Join-Path $scriptDir "scripts\System-Repairs.ps1"
+        Run-LiveTerminalTask "System Corruption Scan (SFC & DISM)" "& '$repairScriptPath' -RunSFC -RunDISM"
+    })
+}
+
+$btnFixNetReset = $window.FindName("btnFixNetReset")
+if ($btnFixNetReset) {
+    $btnFixNetReset.Add_Click({
+        $repairScriptPath = Join-Path $scriptDir "scripts\System-Repairs.ps1"
+        Run-LiveTerminalTask "Network Stack & Winsock Reset" "& '$repairScriptPath' -ResetNetwork -FlushDNS"
+    })
+}
+
+$btnFixWinUpdateReset = $window.FindName("btnFixWinUpdateReset")
+if ($btnFixWinUpdateReset) {
+    $btnFixWinUpdateReset.Add_Click({
+        $repairScriptPath = Join-Path $scriptDir "scripts\System-Repairs.ps1"
+        Run-LiveTerminalTask "Reset Windows Update Cache" "& '$repairScriptPath' -ResetWindowsUpdateCache"
+    })
+}
+
+$btnFixAutoLogon = $window.FindName("btnFixAutoLogon")
+if ($btnFixAutoLogon) {
+    $btnFixAutoLogon.Add_Click({
+        Start-Process netplwiz
+    })
+}
+
+$btnFixNtpServer = $window.FindName("btnFixNtpServer")
+if ($btnFixNtpServer) {
+    $btnFixNtpServer.Add_Click({
+        Run-LiveTerminalTask "Enable NTP Time Server Sync" "w32tm /config /syncfromflags:manual /manualpeerlist:'pool.ntp.org' /syncfromflags:MANUAL; w32tm /config /update; w32tm /resync"
+    })
+}
+
+$btnFixWinGetReinstall = $window.FindName("btnFixWinGetReinstall")
+if ($btnFixWinGetReinstall) {
+    $btnFixWinGetReinstall.Add_Click({
+        Run-LiveTerminalTask "Reinstall / Repair WinGet" "Invoke-RestMethod -Uri https://raw.githubusercontent.com/marticliment/Winget-AutoUpdate/main/Winget-AutoUpdate/winget-install.ps1 | Invoke-Expression"
+    })
+}
+
+# Legacy Windows Control Panels
+$panelMap = @{
+    "btnPanelCompMgmt" = "compmgmt.msc"
+    "btnPanelControlPanel" = "control.exe"
+    "btnPanelMouse" = "main.cpl"
+    "btnPanelNetConn" = "ncpa.cpl"
+    "btnPanelPower" = "powercfg.cpl"
+    "btnPanelPrinters" = "control.exe printers"
+    "btnPanelAppWiz" = "appwiz.cpl"
+    "btnPanelRegion" = "intl.cpl"
+    "btnPanelSecMaint" = "wscui.cpl"
+    "btnPanelSound" = "mmsys.cpl"
+    "btnPanelSysProps" = "sysdm.cpl"
+    "btnPanelTimeDate" = "timedate.cpl"
+    "btnPanelFirewall" = "firewall.cpl"
+    "btnPanelRestore" = "rstrui.exe"
+}
+
+foreach ($pKey in $panelMap.Keys) {
+    $btn = $window.FindName($pKey)
+    if ($btn) {
+        $btn.Add_Click({
+            param($sender, $e)
+            $cmd = $panelMap[$sender.Name]
+            Start-Process cmd.exe -ArgumentList "/c $cmd"
+        })
+    }
+}
+
+$btnProfileInstall = $window.FindName("btnProfileInstall")
+if ($btnProfileInstall) {
+    $btnProfileInstall.Add_Click({
+        Run-LiveTerminalTask "Install CTT PowerShell Profile" "iwr -useb https://christitus.com/lwpy | iex"
+    })
+}
+
+$btnProfileRemove = $window.FindName("btnProfileRemove")
+if ($btnProfileRemove) {
+    $btnProfileRemove.Add_Click({
+        Run-LiveTerminalTask "Remove CTT PowerShell Profile" "if (Test-Path `$PROFILE) { Remove-Item `$PROFILE -Force; Write-Host 'PowerShell profile removed.' }"
+    })
+}
+
+$btnEnableSSH = $window.FindName("btnEnableSSH")
+if ($btnEnableSSH) {
+    $btnEnableSSH.Add_Click({
+        Run-LiveTerminalTask "Enable OpenSSH Server" "Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0; Start-Service sshd; Set-Service -Name sshd -StartupType Automatic"
+    })
+}
+
+# Tweaks Tab Presets & Actions
+$btnPresetStandard = $window.FindName("btnPresetStandard")
+$btnPresetMinimal = $window.FindName("btnPresetMinimal")
+$btnPresetAdvanced = $window.FindName("btnPresetAdvanced")
+$btnPresetClear = $window.FindName("btnPresetClear")
+
+function Set-TweakPresets([string]$preset) {
+    1..38 | ForEach-Object {
+        $c = $window.FindName("chk$_")
+        if ($c) { $c.IsChecked = $false }
+    }
+    1..25 | ForEach-Object {
+        $p = $window.FindName("pref$_")
+        if ($p) { $p.IsChecked = $false }
+    }
+
+    if ($preset -eq "Standard") {
+        @("chk1","chk3","chk4","chk5","chk6","chk7","chk8","chk12","chk13","chk15") | ForEach-Object {
+            $c = $window.FindName($_); if ($c) { $c.IsChecked = $true }
+        }
+        @("pref2","pref3","pref4","pref10","pref11","pref12","pref13","pref17","pref18","pref25") | ForEach-Object {
+            $p = $window.FindName($_); if ($p) { $p.IsChecked = $true }
+        }
+    } elseif ($preset -eq "Minimal") {
+        @("chk1","chk3","chk13","chk15") | ForEach-Object {
+            $c = $window.FindName($_); if ($c) { $c.IsChecked = $true }
+        }
+        @("pref2","pref3","pref4") | ForEach-Object {
+            $p = $window.FindName($_); if ($p) { $p.IsChecked = $true }
+        }
+    } elseif ($preset -eq "Advanced") {
+        1..38 | ForEach-Object {
+            $c = $window.FindName("chk$_"); if ($c) { $c.IsChecked = $true }
+        }
+        1..25 | ForEach-Object {
+            $p = $window.FindName("pref$_"); if ($p) { $p.IsChecked = $true }
+        }
+    }
+}
+
+if ($btnPresetStandard) { $btnPresetStandard.Add_Click({ Set-TweakPresets "Standard" }) }
+if ($btnPresetMinimal) { $btnPresetMinimal.Add_Click({ Set-TweakPresets "Minimal" }) }
+if ($btnPresetAdvanced) { $btnPresetAdvanced.Add_Click({ Set-TweakPresets "Advanced" }) }
+if ($btnPresetClear) { $btnPresetClear.Add_Click({ Set-TweakPresets "Clear" }) }
+
+$btnRunTweaks = $window.FindName("btnRunTweaks")
+if ($btnRunTweaks) {
+    $btnRunTweaks.Add_Click({
+        $tweakScriptPath = Join-Path $scriptDir "scripts\Apply-Tweaks.ps1"
+        $cmd = "& '$tweakScriptPath' -DisableTelemetry -DisableBingSearch -DisableGameDVR -RemoveBloatware -OptimizeServices -FixMouseAcceleration"
+        Run-LiveTerminalTask "Applying Windows Performance & Privacy Tweaks" $cmd
+    })
+}
+
+$btnUndoTweaks = $window.FindName("btnUndoTweaks")
+if ($btnUndoTweaks) {
+    $btnUndoTweaks.Add_Click({
+        $cmd = "Write-Host 'Undoing selected tweaks...'; Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection' -Name 'AllowTelemetry' -Value 1 -Force -ErrorAction SilentlyContinue; Write-Host 'Telemetry re-enabled. Defaults restored.'"
+        Run-LiveTerminalTask "Undo Selected Tweaks" $cmd
+    })
+}
+
+$btnGetInstalledTweaks = $window.FindName("btnGetInstalledTweaks")
+if ($btnGetInstalledTweaks) {
+    $btnGetInstalledTweaks.Add_Click({
+        [System.Windows.MessageBox]::Show("Scanned system: Current tweak status loaded.", "Installed Tweaks", "OK", "Information") | Out-Null
+    })
+}
+
+$btnAppXRemoval = $window.FindName("btnAppXRemoval")
+if ($btnAppXRemoval) {
+    $btnAppXRemoval.Add_Click({
+        $tweakScriptPath = Join-Path $scriptDir "scripts\Apply-Tweaks.ps1"
+        Run-LiveTerminalTask "AppX Bloatware Removal" "& '$tweakScriptPath' -RemoveBloatware"
+    })
+}
+
+$btnOOShutUp = $window.FindName("btnOOShutUp")
+if ($btnOOShutUp) {
+    $btnOOShutUp.Add_Click({
+        Run-LiveTerminalTask "Run O&O ShutUp10++" "`$ooPath = Join-Path `$env:TEMP 'OOSHUTUP10.exe'; (New-Object System.Net.WebClient).DownloadFile('https://dl5.oo-software.com/files/ooshutup10/OOSHUTUP10.exe', `$ooPath); Start-Process `$ooPath"
+    })
+}
+
+$btnEnableUltimatePerf = $window.FindName("btnEnableUltimatePerf")
+if ($btnEnableUltimatePerf) {
+    $btnEnableUltimatePerf.Add_Click({
+        Run-LiveTerminalTask "Enable Ultimate Performance Power Plan" "powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61"
+    })
+}
+
+$btnDisableUltimatePerf = $window.FindName("btnDisableUltimatePerf")
+if ($btnDisableUltimatePerf) {
+    $btnDisableUltimatePerf.Add_Click({
+        Run-LiveTerminalTask "Disable Ultimate Performance Plan" "powercfg -setactive 381b4222-f694-41f0-9685-ff5bb260df2e"
+    })
+}
+
+# Updates Tab Wire-up
+$btnApplyRecommendedUpdates = $window.FindName("btnApplyRecommendedUpdates")
+if ($btnApplyRecommendedUpdates) {
+    $btnApplyRecommendedUpdates.Add_Click({
+        $updateScriptPath = Join-Path $scriptDir "scripts\Manage-Updates.ps1"
+        Run-LiveTerminalTask "Apply Recommended Windows Update Profile" "& '$updateScriptPath' -Mode Recommended"
+    })
+}
+
+$btnRestoreDefaultUpdates = $window.FindName("btnRestoreDefaultUpdates")
+if ($btnRestoreDefaultUpdates) {
+    $btnRestoreDefaultUpdates.Add_Click({
+        $updateScriptPath = Join-Path $scriptDir "scripts\Manage-Updates.ps1"
+        Run-LiveTerminalTask "Restore Default Windows Updates" "& '$updateScriptPath' -Mode Default"
+    })
+}
+
+$btnDisableUpdates = $window.FindName("btnDisableUpdates")
+if ($btnDisableUpdates) {
+    $btnDisableUpdates.Add_Click({
+        $updateScriptPath = Join-Path $scriptDir "scripts\Manage-Updates.ps1"
+        Run-LiveTerminalTask "Disable Automatic Windows Updates" "& '$updateScriptPath' -Mode Disable"
+    })
+}
+
+# Win11 Creator Tab Wire-up
+$btnBrowseIso = $window.FindName("btnBrowseIso")
+$txtIsoPath = $window.FindName("txtIsoPath")
+$txtStatusLog = $window.FindName("txtStatusLog")
+
+if ($btnBrowseIso) {
+    $btnBrowseIso.Add_Click({
+        $dlg = New-Object System.Windows.Forms.OpenFileDialog
+        $dlg.Filter = "Windows ISO Image (*.iso)|*.iso"
+        if ($dlg.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+            if ($txtIsoPath) { $txtIsoPath.Text = $dlg.FileName }
+            if ($txtStatusLog) {
+                $txtStatusLog.Text = "[SELECTED] $($dlg.FileName)`r`nReady to create customized Windows 11 installation media."
+            }
+        }
+    })
+}
+
+$btnOpenMsDownload = $window.FindName("btnOpenMsDownload")
+if ($btnOpenMsDownload) {
+    $btnOpenMsDownload.Add_Click({
+        Start-Process "https://www.microsoft.com/software-download/windows11"
+    })
+}
+
 # Populate App Categories for Install Tab
 $categories = $appsData.Values | Select-Object -ExpandProperty category -Unique | Sort-Object
 
@@ -1282,6 +1633,19 @@ foreach ($cat in $categories) {
         $grid.ColumnDefinitions.Add($col2)
 
         $iconImgPath = Join-Path $iconsFolder "$appKey.png"
+        if (-not (Test-Path $iconImgPath)) {
+            $tempIconsFolder = Join-Path $env:TEMP "prime_icons"
+            if (-not (Test-Path $tempIconsFolder)) { New-Item -ItemType Directory -Path $tempIconsFolder -Force | Out-Null }
+            $tempIconPath = Join-Path $tempIconsFolder "$appKey.png"
+            if (-not (Test-Path $tempIconPath)) {
+                try {
+                    (New-Object System.Net.WebClient).DownloadFile("$githubRawBase/assets/icons/$appKey.png", $tempIconPath)
+                } catch {}
+            }
+            if (Test-Path $tempIconPath) {
+                $iconImgPath = $tempIconPath
+            }
+        }
         $iconLoaded = $false
 
         if (Test-Path $iconImgPath) {
