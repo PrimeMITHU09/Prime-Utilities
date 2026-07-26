@@ -1760,9 +1760,11 @@ if ($btnThemeToggle) {
     })
 }
 
-$window.Topmost = $true
-$window.Activate()
-$window.Focus()
-$window.Topmost = $false
+$window.Add_Loaded({
+    $window.Topmost = $true
+    [void]$window.Activate()
+    [void]$window.Focus()
+    $window.Topmost = $false
+})
 
-$window.ShowDialog() | Out-Null
+[void]$window.ShowDialog()
