@@ -1037,21 +1037,23 @@ if ($btnSettings) {
     $separator = New-Object System.Windows.Controls.Separator
 
     $miAbout = New-Object System.Windows.Controls.MenuItem
-    $miAbout.Header = "About"
+    $miAbout.Header = "About & GitHub"
     $miAbout.Add_Click({
+        Start-Process "https://github.com/PrimeMITHU09/Prime-Utilities"
         Show-AboutDialog
     })
 
     $miDoc = New-Object System.Windows.Controls.MenuItem
-    $miDoc.Header = "Documentation (Paused)"
+    $miDoc.Header = "Documentation (README)"
     $miDoc.Add_Click({
-        [System.Windows.MessageBox]::Show("Custom Prime Utilities Documentation coming soon!", "Documentation", "OK", "Information") | Out-Null
+        Start-Process "https://github.com/PrimeMITHU09/Prime-Utilities#readme"
     })
 
     $miSponsors = New-Object System.Windows.Controls.MenuItem
-    $miSponsors.Header = "Sponsors"
+    $miSponsors.Header = "Sponsors & Telegram"
     $miSponsors.Add_Click({
-        [System.Windows.MessageBox]::Show("Add me, I am Clone developer`nTelegram: @prime8088`nGitHub: https://github.com/PrimeMITHU09", "Sponsors & Developer Info", "OK", "Information") | Out-Null
+        Start-Process "https://t.me/prime8088"
+        Start-Process "https://github.com/PrimeMITHU09"
     })
 
     $cm.Items.Add($miImport) | Out-Null
