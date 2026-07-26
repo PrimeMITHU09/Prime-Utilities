@@ -266,6 +266,68 @@ body {
   overflow-y: auto;
 }
 
+.tab-view {
+  display: none;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.tab-view.active {
+  display: flex;
+}
+
+.tool-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.tool-card {
+  background: var(--win-card);
+  border: 1px solid var(--win-border);
+  border-radius: 6px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tool-card h4 {
+  color: var(--win-cyan);
+  font-size: 13px;
+}
+
+.tool-card-btn {
+  padding: 6px 12px;
+  background: var(--win-button-bg);
+  border: 1px solid var(--win-button-border);
+  border-radius: 4px;
+  color: var(--win-text);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tool-card-btn:hover {
+  background: var(--win-button-hover);
+  border-color: var(--win-cyan);
+}
+
+.tool-card-btn.primary {
+  background: #1e3a8a;
+  border-color: #2563eb;
+  color: white;
+}
+
+.tool-card-btn.danger {
+  background: #7f1d1d;
+  border-color: #dc2626;
+  color: white;
+}
+
+
 .category-block {
   display: flex;
   flex-direction: column;

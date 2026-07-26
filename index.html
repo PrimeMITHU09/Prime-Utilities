@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Prime Utilities - WinUtil 1-to-1 Edition with App Icons</title>
+  <title>Prime Utilities - WinUtil Master Edition</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -12,7 +12,7 @@
   <!-- Top Navigation Header -->
   <header class="top-nav">
     <div class="top-brand">
-      <img src="assets/marshmello_logo.jpg" class="nav-logo" alt="Marshmello Logo">
+      <img src="assets/prime_utilities_logo.jpg" class="nav-logo" alt="Prime Utilities Logo">
     </div>
     <div class="top-tabs">
       <button class="nav-tab active" data-tab="tab-install">Install</button>
@@ -26,14 +26,14 @@
       <i class="fa-solid fa-magnifying-glass"></i>
     </div>
     <div class="top-controls">
-      <button title="Toggle Theme"><i class="fa-solid fa-sun"></i></button>
-      <button title="Font Size"><i class="fa-solid fa-font"></i></button>
-      <button title="Settings"><i class="fa-solid fa-gear"></i></button>
+      <button title="Toggle Theme" id="btn-theme-toggle"><i class="fa-solid fa-sun"></i></button>
+      <button title="Font Size" id="btn-font-size"><i class="fa-solid fa-font"></i></button>
+      <button title="Settings" id="btn-settings"><i class="fa-solid fa-gear"></i></button>
     </div>
   </header>
 
-  <!-- Filters Sub-header -->
-  <div class="filters-bar">
+  <!-- Filters Sub-header (Shown on Install tab) -->
+  <div class="filters-bar" id="filters-bar">
     <span class="filters-label">Filters</span>
     <button class="filter-chip active">All</button>
     <button class="filter-chip">Browsers</button>
@@ -49,13 +49,13 @@
   <!-- Main Body Layout -->
   <div class="win-body">
 
-    <!-- Left Sidebar -->
-    <aside class="win-sidebar">
+    <!-- Left Sidebar (Install Tab) -->
+    <aside class="win-sidebar" id="sidebar-install">
       <div>
         <div class="section-title">Actions</div>
         <button class="action-btn primary" id="btn-install-selected">Install/Upgrade Applications</button>
-        <button class="action-btn">Uninstall Applications</button>
-        <button class="action-btn">Upgrade all Applications</button>
+        <button class="action-btn" id="btn-uninstall-selected">Uninstall Applications</button>
+        <button class="action-btn" id="btn-upgrade-all">Upgrade all Applications</button>
       </div>
 
       <div>
@@ -72,15 +72,132 @@
           <div class="status-dot-green"></div> Free and Open Source Software
         </div>
         <button class="action-btn" id="btn-clear-sel">Clear Selection</button>
-        <button class="action-btn">Collapse All Categories</button>
-        <button class="action-btn">Expand All Categories</button>
+        <button class="action-btn" id="btn-collapse-all">Collapse All Categories</button>
+        <button class="action-btn" id="btn-expand-all">Expand All Categories</button>
         <button class="action-btn" id="btn-sel-count">Selected Apps: 0</button>
-        <button class="action-btn">Show Installed Apps</button>
+        <button class="action-btn" id="btn-show-installed">Show Installed Apps</button>
       </div>
     </aside>
 
     <!-- Right Content Area Dynamically Loaded -->
-    <main class="win-content" id="pnl-app-categories">
+    <main class="win-content">
+      
+      <!-- TAB 1: INSTALL -->
+      <div id="view-tab-install" class="tab-view active">
+        <div id="pnl-app-categories"></div>
+      </div>
+
+      <!-- TAB 2: TWEAKS -->
+      <div id="view-tab-tweaks" class="tab-view">
+        <div style="display:flex; gap:10px; margin-bottom:10px;">
+          <button class="tool-card-btn primary" id="btn-run-tweaks">Run Tweaks</button>
+          <button class="tool-card-btn" id="btn-undo-tweaks">Undo Selected Tweaks</button>
+          <button class="tool-card-btn" id="btn-preset-desktop">Preset: Desktop</button>
+          <button class="tool-card-btn" id="btn-preset-gaming">Preset: Gaming</button>
+          <button class="tool-card-btn" id="btn-preset-laptop">Preset: Laptop</button>
+          <button class="tool-card-btn danger" id="btn-appx-remove">Remove Bloatware</button>
+        </div>
+        <div class="tool-grid">
+          <div class="tool-card">
+            <h4>Telemetry & Privacy</h4>
+            <label><input type="checkbox" id="chk-telemetry" checked> Disable Telemetry & Diagnostics</label>
+            <label><input type="checkbox" id="chk-bing" checked> Disable Bing Search in Start Menu</label>
+            <label><input type="checkbox" id="chk-cortana" checked> Disable Cortana</label>
+          </div>
+          <div class="tool-card">
+            <h4>Gaming & Input</h4>
+            <label><input type="checkbox" id="chk-gamedvr" checked> Disable Xbox GameDVR</label>
+            <label><input type="checkbox" id="chk-mouseacc" checked> Disable Mouse Acceleration</label>
+            <button class="tool-card-btn" id="btn-enable-ult-perf">Enable Ultimate Performance Plan</button>
+          </div>
+          <div class="tool-card">
+            <h4>Services & Cleanup</h4>
+            <label><input type="checkbox" id="chk-services" checked> Optimize Non-Essential Services</label>
+            <label><input type="checkbox" id="chk-restore" checked> Create System Restore Point</label>
+            <button class="tool-card-btn" id="btn-oo-shutup">Run O&O ShutUp10++</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: CONFIG & TOOLS -->
+      <div id="view-tab-config" class="tab-view">
+        <div class="section-title">System Repairs & Diagnostics Tools</div>
+        <div class="tool-grid">
+          <div class="tool-card">
+            <h4>System Repairs</h4>
+            <p style="font-size:12px; color:var(--win-text-muted);">Scan and repair system file corruption via SFC and DISM.</p>
+            <button class="tool-card-btn primary" id="btn-fix-sys">Run SFC & DISM Scan</button>
+          </div>
+          <div class="tool-card">
+            <h4>Network Stack Reset</h4>
+            <p style="font-size:12px; color:var(--win-text-muted);">Reset Winsock, TCP/IP stack and flush DNS cache.</p>
+            <button class="tool-card-btn primary" id="btn-fix-net">Reset Network & DNS</button>
+          </div>
+          <div class="tool-card">
+            <h4>Windows Update Repair</h4>
+            <p style="font-size:12px; color:var(--win-text-muted);">Clear SoftwareDistribution cache and restart update services.</p>
+            <button class="tool-card-btn primary" id="btn-fix-wu">Reset Update Cache</button>
+          </div>
+          <div class="tool-card">
+            <h4>WinGet Repair</h4>
+            <p style="font-size:12px; color:var(--win-text-muted);">Reinstall and fix corrupted WinGet package manager.</p>
+            <button class="tool-card-btn" id="btn-fix-winget">Reinstall WinGet</button>
+          </div>
+          <div class="tool-card">
+            <h4>NTP Time Sync</h4>
+            <p style="font-size:12px; color:var(--win-text-muted);">Force system clock resynchronization with pool.ntp.org.</p>
+            <button class="tool-card-btn" id="btn-fix-ntp">Sync NTP Server</button>
+          </div>
+          <div class="tool-card">
+            <h4>OpenSSH Server</h4>
+            <p style="font-size:12px; color:var(--win-text-muted);">Enable and start Windows OpenSSH Server daemon.</p>
+            <button class="tool-card-btn" id="btn-enable-ssh">Enable OpenSSH</button>
+          </div>
+        </div>
+
+        <div class="section-title" style="margin-top:16px;">Legacy Windows Control Panels</div>
+        <div class="tool-grid">
+          <button class="tool-card-btn" id="panel-control">Control Panel</button>
+          <button class="tool-card-btn" id="panel-net">Network Connections (ncpa.cpl)</button>
+          <button class="tool-card-btn" id="panel-power">Power Options (powercfg.cpl)</button>
+          <button class="tool-card-btn" id="panel-appwiz">Programs & Features (appwiz.cpl)</button>
+          <button class="tool-card-btn" id="panel-sysdm">System Properties (sysdm.cpl)</button>
+          <button class="tool-card-btn" id="panel-firewall">Windows Firewall (firewall.cpl)</button>
+        </div>
+      </div>
+
+      <!-- TAB 4: WINDOWS UPDATES -->
+      <div id="view-tab-updates" class="tab-view">
+        <div class="section-title">Windows Update Profiles</div>
+        <div class="tool-grid">
+          <div class="tool-card">
+            <h4>Recommended Profile</h4>
+            <p style="font-size:12px; color:var(--win-text-muted);">Defers feature updates for 365 days, quality updates for 4 days, excludes driver updates.</p>
+            <button class="tool-card-btn primary" id="btn-wu-recommended">Apply Recommended</button>
+          </div>
+          <div class="tool-card">
+            <h4>Default Profile</h4>
+            <p style="font-size:12px; color:var(--win-text-muted);">Restores default automatic Windows Update operation.</p>
+            <button class="tool-card-btn" id="btn-wu-default">Restore Defaults</button>
+          </div>
+          <div class="tool-card">
+            <h4>Disable Updates</h4>
+            <p style="font-size:12px; color:var(--win-text-muted);">Disables Windows Update service and scheduled tasks (Advanced).</p>
+            <button class="tool-card-btn danger" id="btn-wu-disable">Disable Updates</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 5: WIN11 CREATOR -->
+      <div id="view-tab-creator" class="tab-view">
+        <div class="section-title">Windows 11 Creator Tool</div>
+        <div class="tool-card">
+          <h4>Official Microsoft Windows 11 ISO</h4>
+          <p style="font-size:12px; color:var(--win-text-muted);">Download official Windows 11 ISO directly from Microsoft.</p>
+          <button class="tool-card-btn primary" id="btn-ms-dl" onclick="window.open('https://www.microsoft.com/software-download/windows11','_blank')">Open Microsoft Download Page</button>
+        </div>
+      </div>
+
     </main>
   </div>
 

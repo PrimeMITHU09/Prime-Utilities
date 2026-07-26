@@ -5,10 +5,18 @@
 document.addEventListener('DOMContentLoaded', async () => {
   const pnlAppCategories = document.getElementById('pnl-app-categories');
   const btnInstallSelected = document.getElementById('btn-install-selected');
+  const btnUninstallSelected = document.getElementById('btn-uninstall-selected');
+  const btnUpgradeAll = document.getElementById('btn-upgrade-all');
+  const btnShowInstalled = document.getElementById('btn-show-installed');
+  const btnCollapseAll = document.getElementById('btn-collapse-all');
+  const btnExpandAll = document.getElementById('btn-expand-all');
   const btnClearSel = document.getElementById('btn-clear-sel');
   const btnSelCount = document.getElementById('btn-sel-count');
   const searchInput = document.getElementById('app-search');
   const filterChips = document.querySelectorAll('.filter-chip');
+  const navTabs = document.querySelectorAll('.nav-tab');
+  const filtersBar = document.getElementById('filters-bar');
+  const sidebarInstall = document.getElementById('sidebar-install');
   const terminalOutput = document.getElementById('terminal-output');
 
   // SimpleIcons Brand Logo Mapper
@@ -165,11 +173,46 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  // Top Tabs Switcher
+  navTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      navTabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+
+      const targetTab = tab.getAttribute('data-tab');
+      document.querySelectorAll('.tab-view').forEach(view => {
+        view.classList.remove('active');
+      });
+
+      const targetView = document.getElementById(`view-${targetTab}`);
+      if (targetView) targetView.classList.add('active');
+
+      if (targetTab === 'tab-install') {
+        if (filtersBar) filtersBar.style.display = 'flex';
+        if (sidebarInstall) sidebarInstall.style.display = 'flex';
+      } else {
+        if (filtersBar) filtersBar.style.display = 'none';
+        if (sidebarInstall) sidebarInstall.style.display = 'none';
+      }
+    });
+  });
+
   // Clear Selection
   btnClearSel?.addEventListener('click', () => {
     document.querySelectorAll('.app-item').forEach(item => item.classList.remove('selected'));
     updateSelectedCount();
     logConsole("[SELECTION] Cleared all selected applications.");
+  });
+
+  // Collapse / Expand All
+  btnCollapseAll?.addEventListener('click', () => {
+    document.querySelectorAll('.app-grid').forEach(g => g.style.display = 'none');
+    logConsole("[VIEW] Collapsed all application categories.");
+  });
+
+  btnExpandAll?.addEventListener('click', () => {
+    document.querySelectorAll('.app-grid').forEach(g => g.style.display = 'grid');
+    logConsole("[VIEW] Expanded all application categories.");
   });
 
   // Filter Chips
@@ -220,6 +263,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
+  // Helper for invoking backend script commands
+  async function runScriptCommand(title, script) {
+    logConsole(`[ACTION] Executing: ${title}`);
+    try {
+      const response = await fetch('/api/run-command', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ script })
+      });
+      if (response.ok) {
+        const result = await response.json();
+        logConsole(result.output || `${title} executed successfully.`);
+      } else {
+        throw new Error(`Server returned HTTP ${response.status}`);
+      }
+    } catch (e) {
+      logConsole(`[ERROR] Server execution failed: ${e.message}`);
+    }
+  }
+
   // Install Applications Action
   btnInstallSelected?.addEventListener('click', async () => {
     const selected = Array.from(document.querySelectorAll('.app-item.selected'))
@@ -231,31 +294,108 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     logConsole(`[INSTALL] Starting WinGet installation for ${selected.length} package(s): ${selected.join(', ')}`);
-
     const script = `& "$PSScriptRoot/scripts/Install-Apps.ps1" -AppIds @(${selected.map(id => `'${id}'`).join(', ')})`;
+    await runScriptCommand("Install Applications", script);
+  });
 
-    try {
-      const response = await fetch('/api/run-command', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ script })
-      });
+  // Uninstall Applications Action
+  btnUninstallSelected?.addEventListener('click', async () => {
+    const selected = Array.from(document.querySelectorAll('.app-item.selected'))
+      .map(item => item.getAttribute('data-appid'));
 
-      if (response.ok) {
-        const result = await response.json();
-        logConsole(result.output || "Installation finished.");
-      } else {
-        throw new Error("Server error");
-      }
-    } catch (e) {
-      logConsole("[SCRIPT GENERATED] Downloading PowerShell script...");
-      const blob = new Blob([script], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'Install-Selected-Apps.ps1';
-      a.click();
+    if (selected.length === 0) {
+      alert("Please select at least one application to uninstall.");
+      return;
     }
+
+    logConsole(`[UNINSTALL] Starting WinGet uninstallation for ${selected.length} package(s): ${selected.join(', ')}`);
+    const script = `foreach ($app in @(${selected.map(id => `'${id}'`).join(', ')})) { winget uninstall --id $app --silent --accept-source-agreements }`;
+    await runScriptCommand("Uninstall Applications", script);
+  });
+
+  // Upgrade All Applications Action
+  btnUpgradeAll?.addEventListener('click', async () => {
+    await runScriptCommand("Upgrade All Packages", "winget upgrade --all --include-unknown --accept-package-agreements --accept-source-agreements");
+  });
+
+  // Show Installed Apps Action
+  btnShowInstalled?.addEventListener('click', async () => {
+    await runScriptCommand("Installed Packages List", "winget list");
+  });
+
+  // System Repairs Tools Event Listeners
+  document.getElementById('btn-fix-sys')?.addEventListener('click', () => {
+    runScriptCommand("System Corruption Scan (SFC & DISM)", '& "$PSScriptRoot/scripts/System-Repairs.ps1" -RunSFC -RunDISM');
+  });
+
+  document.getElementById('btn-fix-net')?.addEventListener('click', () => {
+    runScriptCommand("Network & DNS Reset", '& "$PSScriptRoot/scripts/System-Repairs.ps1" -ResetNetwork -FlushDNS');
+  });
+
+  document.getElementById('btn-fix-wu')?.addEventListener('click', () => {
+    runScriptCommand("Windows Update Reset", '& "$PSScriptRoot/scripts/System-Repairs.ps1" -ResetWindowsUpdateCache');
+  });
+
+  document.getElementById('btn-fix-winget')?.addEventListener('click', () => {
+    runScriptCommand("Reinstall WinGet", 'Invoke-RestMethod -Uri https://raw.githubusercontent.com/marticliment/Winget-AutoUpdate/main/Winget-AutoUpdate/winget-install.ps1 | Invoke-Expression');
+  });
+
+  document.getElementById('btn-fix-ntp')?.addEventListener('click', () => {
+    runScriptCommand("NTP Server Resync", 'w32tm /config /syncfromflags:manual /manualpeerlist:"pool.ntp.org" /syncfromflags:MANUAL; w32tm /config /update; w32tm /resync');
+  });
+
+  document.getElementById('btn-enable-ssh')?.addEventListener('click', () => {
+    runScriptCommand("Enable OpenSSH Server", 'Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0; Start-Service sshd; Set-Service -Name sshd -StartupType Automatic');
+  });
+
+  // Tweaks Tab Event Listeners
+  document.getElementById('btn-run-tweaks')?.addEventListener('click', () => {
+    runScriptCommand("Apply Windows Tweaks", '& "$PSScriptRoot/scripts/Apply-Tweaks.ps1" -DisableTelemetry -DisableBingSearch -DisableGameDVR -RemoveBloatware -OptimizeServices -FixMouseAcceleration');
+  });
+
+  document.getElementById('btn-undo-tweaks')?.addEventListener('click', () => {
+    runScriptCommand("Undo Tweaks", 'Set-ItemProperty -Path "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection" -Name "AllowTelemetry" -Value 1 -Force');
+  });
+
+  document.getElementById('btn-appx-remove')?.addEventListener('click', () => {
+    runScriptCommand("AppX Bloatware Removal", '& "$PSScriptRoot/scripts/Apply-Tweaks.ps1" -RemoveBloatware');
+  });
+
+  document.getElementById('btn-enable-ult-perf')?.addEventListener('click', () => {
+    runScriptCommand("Enable Ultimate Performance", 'powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61');
+  });
+
+  document.getElementById('btn-oo-shutup')?.addEventListener('click', () => {
+    runScriptCommand("Run O&O ShutUp10++", '$ooPath = Join-Path $env:TEMP "OOSHUTUP10.exe"; (New-Object System.Net.WebClient).DownloadFile("https://dl5.oo-software.com/files/ooshutup10/OOSHUTUP10.exe", $ooPath); Start-Process $ooPath');
+  });
+
+  // Updates Tab Event Listeners
+  document.getElementById('btn-wu-recommended')?.addEventListener('click', () => {
+    runScriptCommand("Apply Recommended Updates Profile", '& "$PSScriptRoot/scripts/Manage-Updates.ps1" -Mode Recommended');
+  });
+
+  document.getElementById('btn-wu-default')?.addEventListener('click', () => {
+    runScriptCommand("Restore Default Updates Profile", '& "$PSScriptRoot/scripts/Manage-Updates.ps1" -Mode Default');
+  });
+
+  document.getElementById('btn-wu-disable')?.addEventListener('click', () => {
+    runScriptCommand("Disable Updates Profile", '& "$PSScriptRoot/scripts/Manage-Updates.ps1" -Mode Disable');
+  });
+
+  // Control Panel Shortcuts
+  const panelCmds = {
+    'panel-control': 'control.exe',
+    'panel-net': 'ncpa.cpl',
+    'panel-power': 'powercfg.cpl',
+    'panel-appwiz': 'appwiz.cpl',
+    'panel-sysdm': 'sysdm.cpl',
+    'panel-firewall': 'firewall.cpl'
+  };
+
+  Object.entries(panelCmds).forEach(([btnId, cmd]) => {
+    document.getElementById(btnId)?.addEventListener('click', () => {
+      runScriptCommand(`Open ${btnId}`, `Start-Process ${cmd}`);
+    });
   });
 
   updateSelectedCount();

@@ -139,7 +139,7 @@ $inputXaml = @"
             </Grid.RowDefinitions>
 
             <!-- Top Custom Navigation & Title Header Bar -->
-            <Border Name="hdrDragBorder" Grid.Row="0" Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="8,6">
+            <Border Name="hdrDragBorder" Grid.Row="0" Background="#0B111A" BorderBrush="#1E293B" BorderThickness="0,0,0,1" Padding="8,6">
                 <DockPanel>
                     <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
                         <Border Width="30" Height="30" CornerRadius="6" Margin="0,0,10,0" Background="#8B5CF6">
@@ -151,18 +151,18 @@ $inputXaml = @"
                         </Border>
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <Button Name="btnTabInstall" Content="Install" Background="#2563EB" Foreground="White" BorderBrush="#3B82F6" Width="80" Margin="2,0"/>
-                            <Button Name="btnTabTweaks" Content="Tweaks" Background="#FFFFFF" Foreground="#0F172A" BorderBrush="#CBD5E1" Width="80" Margin="2,0"/>
-                            <Button Name="btnTabConfig" Content="Config" Background="#FFFFFF" Foreground="#0F172A" BorderBrush="#CBD5E1" Width="80" Margin="2,0"/>
-                            <Button Name="btnTabUpdates" Content="Updates" Background="#FFFFFF" Foreground="#0F172A" BorderBrush="#CBD5E1" Width="80" Margin="2,0"/>
-                            <Button Name="btnTabCreator" Content="Win11 Creator" Background="#FFFFFF" Foreground="#0F172A" BorderBrush="#CBD5E1" Width="110" Margin="2,0"/>
+                            <Button Name="btnTabTweaks" Content="Tweaks" Background="#182232" Foreground="#F8FAFC" BorderBrush="#334155" Width="80" Margin="2,0"/>
+                            <Button Name="btnTabConfig" Content="Config" Background="#182232" Foreground="#F8FAFC" BorderBrush="#334155" Width="80" Margin="2,0"/>
+                            <Button Name="btnTabUpdates" Content="Updates" Background="#182232" Foreground="#F8FAFC" BorderBrush="#334155" Width="80" Margin="2,0"/>
+                            <Button Name="btnTabCreator" Content="Win11 Creator" Background="#182232" Foreground="#F8FAFC" BorderBrush="#334155" Width="110" Margin="2,0"/>
                         </StackPanel>
                     </StackPanel>
                     
                     <!-- Right Icons: Theme | Font Scale | Settings | Min | Max | Close -->
                     <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                        <TextBox Name="txtSearch" Width="220" Height="26" Background="#FFFFFF" Foreground="#0F172A" BorderBrush="#CBD5E1" Padding="6,2" Text="" VerticalAlignment="Center" Margin="0,0,14,0"/>
+                        <TextBox Name="txtSearch" Width="220" Height="26" Background="#182232" Foreground="#F8FAFC" BorderBrush="#334155" Padding="6,2" Text="" VerticalAlignment="Center" Margin="0,0,14,0"/>
                         
-                        <Button Name="btnThemeToggle" Style="{StaticResource HeaderIconBtn}" Content="$chSun" ToolTip="Toggle Theme (Day / Night)"/>
+                        <Button Name="btnThemeToggle" Style="{StaticResource HeaderIconBtn}" Content="$chMoon" ToolTip="Toggle Theme (Day / Night)"/>
                         <Button Name="btnFontSize" Style="{StaticResource HeaderIconBtn}" ToolTip="Toggle Font Size Scaling (100% / 120% / 140%)">
                             <TextBlock Text="A" TextDecorations="Underline" FontWeight="Bold"/>
                         </Button>
@@ -178,10 +178,10 @@ $inputXaml = @"
             </Border>
 
             <!-- Install Tab Filters Bar -->
-            <Border Name="barFilters" Grid.Row="1" Background="#F1F5F9" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="10,6" Visibility="Visible">
+            <Border Name="barFilters" Grid.Row="1" Background="#0D1520" BorderBrush="#1E293B" BorderThickness="0,0,0,1" Padding="10,6" Visibility="Visible">
                 <StackPanel Name="pnlFilters" Orientation="Horizontal">
-                    <TextBlock Text="Filters" Foreground="#0284C7" FontWeight="Bold" FontSize="13" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                    <Button Name="btnFilterAll" Content="All" Background="#CBD5E1" Foreground="#0F172A" BorderBrush="#0284C7" Margin="2,0"/>
+                    <TextBlock Text="Filters" Foreground="#38BDF8" FontWeight="Bold" FontSize="13" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                    <Button Name="btnFilterAll" Content="All" Background="#334155" Foreground="#F8FAFC" BorderBrush="#38BDF8" Margin="2,0"/>
                     <Button Name="btnFilterBrowsers" Content="Browsers" Margin="2,0"/>
                     <Button Name="btnFilterComms" Content="Communications" Margin="2,0"/>
                     <Button Name="btnFilterDev" Content="Development" Margin="2,0"/>
@@ -194,9 +194,9 @@ $inputXaml = @"
             </Border>
 
             <!-- Tweaks Tab Sub-Header Presets Bar -->
-            <Border Name="barTweaksPresets" Grid.Row="1" Background="#F1F5F9" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="10,6" Visibility="Collapsed">
+            <Border Name="barTweaksPresets" Grid.Row="1" Background="#0D1520" BorderBrush="#1E293B" BorderThickness="0,0,0,1" Padding="10,6" Visibility="Collapsed">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Name="txtRecommendedLabel" Text="Recommended Selections:" Foreground="#64748B" FontSize="12" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                    <TextBlock Name="txtRecommendedLabel" Text="Recommended Selections:" Foreground="#94A3B8" FontSize="12" VerticalAlignment="Center" Margin="0,0,12,0"/>
                     <Button Name="btnPresetStandard" Content="Standard" Width="100" Margin="3,0"/>
                     <Button Name="btnPresetMinimal" Content="Minimal" Width="100" Margin="3,0"/>
                     <Button Name="btnPresetAdvanced" Content="Advanced" Width="100" Margin="3,0"/>
@@ -213,19 +213,19 @@ $inputXaml = @"
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <Border Name="boxInstallLeft" Grid.Column="0" Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,8,0">
+                <Border Name="boxInstallLeft" Grid.Column="0" Background="#141D2B" BorderBrush="#1E293B" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,8,0">
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <StackPanel>
-                            <TextBlock Text="- Actions" Foreground="#0284C7" FontWeight="Bold" FontSize="13" Margin="0,0,0,6"/>
+                            <TextBlock Text="- Actions" Foreground="#38BDF8" FontWeight="Bold" FontSize="13" Margin="0,0,0,6"/>
                             <Button Name="btnInstallSelected" Content="Install/Upgrade Applications" Background="#2563EB" Foreground="White" BorderBrush="#3B82F6" Height="32" Margin="0,3"/>
                             <Button Name="btnUninstallSelected" Content="Uninstall Applications" Height="28" Margin="0,3"/>
                             <Button Name="btnUpgradeAll" Content="Upgrade all Applications" Height="28" Margin="0,3"/>
 
-                            <TextBlock Text="- Package Manager" Foreground="#0284C7" FontWeight="Bold" FontSize="13" Margin="0,14,0,6"/>
-                            <RadioButton Name="radChoco" Content="Chocolatey" Foreground="#475569" Margin="0,2"/>
-                            <RadioButton Name="radWinGet" Content="WinGet" IsChecked="True" Foreground="#0F172A" Margin="0,2"/>
+                            <TextBlock Text="- Package Manager" Foreground="#38BDF8" FontWeight="Bold" FontSize="13" Margin="0,14,0,6"/>
+                            <RadioButton Name="radChoco" Content="Chocolatey" Foreground="#94A3B8" Margin="0,2"/>
+                            <RadioButton Name="radWinGet" Content="WinGet" IsChecked="True" Foreground="#F8FAFC" Margin="0,2"/>
 
-                            <TextBlock Text="- Selection" Foreground="#0284C7" FontWeight="Bold" FontSize="13" Margin="0,14,0,6"/>
+                            <TextBlock Text="- Selection" Foreground="#38BDF8" FontWeight="Bold" FontSize="13" Margin="0,14,0,6"/>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                                 <Ellipse Width="6" Height="6" Fill="#16A34A" Margin="0,0,6,0"/>
                                 <TextBlock Text="Free and Open Source Software" Foreground="#16A34A" FontSize="11"/>
@@ -239,7 +239,7 @@ $inputXaml = @"
                     </ScrollViewer>
                 </Border>
 
-                <Border Name="boxInstallRight" Grid.Column="1" Background="#F8FAFC">
+                <Border Name="boxInstallRight" Grid.Column="1" Background="#0F1722">
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <StackPanel Name="pnlAppCategories" Margin="4">
                         </StackPanel>

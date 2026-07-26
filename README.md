@@ -1,82 +1,89 @@
-# Prime Utilities - Windows Optimization Suite
+<p align="center">
+  <img src="assets/prime_utilities_logo.jpg" width="140" height="140" alt="Prime Utilities Logo" style="border-radius: 20px;">
+</p>
 
-![Prime Utilities Banner](https://img.shields.io/badge/Windows-10%2F11-blue?style=for-the-badge&logo=windows)
-![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+<h1 align="center">Prime Utilities - Master Windows Suite</h1>
 
-**Prime Utilities** is a comprehensive, modern Windows system utility inspired by Chris Titus Tech's WinUtil (`winutil`). It combines a rich, interactive Web GUI dashboard with safe, modular PowerShell scripts to optimize Windows performance, remove bloatware, install essential applications via WinGet, repair system files, and manage Windows Updates.
+<p align="center">
+  <img src="https://img.shields.io/badge/Windows-10%2F11-0078D4?style=for-the-badge&logo=windows&logoColor=white" alt="Windows 10/11">
+  <img src="https://img.shields.io/badge/PowerShell-5.1%2B%20%7C%207%2B-5391FE?style=for-the-badge&logo=powershell&logoColor=white" alt="PowerShell">
+  <img src="https://img.shields.io/badge/UI-WPF%20%26%20Web%20Dashboard-8B5CF6?style=for-the-badge" alt="UI">
+  <img src="https://img.shields.io/badge/License-MIT-22C55E?style=for-the-badge" alt="License">
+</p>
+
+<p align="center">
+  <b>Prime Utilities</b> is an ultra-premium, modern Windows system optimization, debloater, app installer, and diagnostics toolkit inspired by WinUtil. It provides a native WPF Desktop UI and a Web Dashboard paired with robust PowerShell automation.
+</p>
 
 ---
 
 ## 🌟 Key Features
 
-### 1. ⚡ System Tweaks & Debloater
-* **Disable Telemetry & Diagnostics**: Halts background data collection and tracking services (`DiagTrack`, `dmwappushservice`).
-* **Appx Bloatware Removal**: Uninstalls pre-installed bloatware (Solitaire, News, Weather, 3D Builder, Skype).
-* **Start Menu Clean-up**: Disables web/Bing search integration in the Windows search bar.
-* **Gaming Optimizations**: Disables Xbox GameDVR background recording and fixes mouse acceleration for raw 1:1 input.
-* **Background Service Tuning**: Switches non-essential background services (Maps, Fax, Xbox auth) to manual startup.
-* **Presets**: One-click quick activation for *Desktop*, *Gaming*, and *Laptop/Battery* profiles.
+### 📦 1. WinGet Batch Package Manager
+* **90+ Curated Applications**: Pre-configured with authentic brand icons and categories (Browsers, Development, Utilities, Gaming, Communications, Multimedia).
+* **Batch Operations**: 1-Click Install, Silent Uninstall, and Upgrade All via WinGet.
+* **Real-time Live Filter**: Instant search and category filter.
 
-### 2. 📦 WinGet Batch App Installer
-Multi-select software installer categorized by:
-* **Web Browsers**: Chrome, Firefox, Brave.
-* **Dev Tools**: VS Code, Git, Node.js, Python 3.11.
-* **Utilities & Media**: 7-Zip, VLC, Discord, Visual C++ Redistributable Runtimes.
+### ⚡ 2. System Tweaks & Privacy Debloater
+* **Telemetry & Tracking**: Completely disables Windows Telemetry (`DiagTrack`, `dmwappushservice`) & background data harvesting.
+* **AppX Bloatware Removal**: Removes preinstalled bloatware (Solitaire, News, Weather, 3D Builder, Skype).
+* **Gaming & Input Tuning**: Disables Xbox GameDVR recording and removes mouse acceleration for raw 1:1 precision input.
+* **Power & Performance**: 1-Click toggle for Windows **Ultimate Performance Profile**.
+* **O&O ShutUp10++**: Direct integration for advanced privacy controls.
 
-### 3. 🛠️ Config & System Repairs
-* **SFC Scan**: System File Checker (`sfc /scannow`) to repair corrupted system binaries.
-* **DISM Repair**: Component Store image cleanup (`dism /online /cleanup-image /restorehealth`).
-* **Network Reset**: Full Winsock, TCP/IP stack reset, and DHCP lease release/renewal.
-* **DNS Flush**: Instant DNS resolver cache clearing.
-* **Windows Update Cache Reset**: Clears `SoftwareDistribution` cache to fix stuck updates.
-* **Windows Features**: Enable WSL (Linux Subsystem) & Hyper-V.
+### 🛠️ 3. Config & System Diagnostics
+* **SFC & DISM Scans**: System File Checker (`sfc /scannow`) & Component Store repair (`DISM /RestoreHealth`).
+* **Network & DNS Reset**: Winsock reset, TCP/IP stack reset, DHCP release/renew, and instant DNS cache flush.
+* **Windows Update Repair**: Clears `SoftwareDistribution` cache to resolve stuck Windows Updates.
+* **NTP Server Resync**: Force time synchronization with `pool.ntp.org`.
+* **Legacy Control Panels**: Quick access shortcuts for Control Panel, Network Connections, Power Options, Sound, Firewall, and System Properties.
 
-### 4. 🔄 Windows Update Control
-* **Default**: Standard automatic Windows Update operation.
-* **Security Only**: Restricts downloads to critical security patches while excluding driver updates.
-* **Pause Updates**: Temporarily pauses all Windows Update checks for 35 days.
-* **Defer Upgrades**: Delays annual major feature builds by 365 days.
-
-### 5. 📜 Script Generator & Exporter
-Export your customized configuration into a single standalone `.ps1` (PowerShell Script) file that can be copied to a USB flash drive and run on any machine without installing Node.js or web dependencies.
+### 🔄 4. Windows Update Policy Profiles
+* **Recommended Profile**: Defers feature updates for 365 days, quality updates for 4 days, and excludes driver updates from Windows Update.
+* **Default Profile**: Restores standard automatic Windows Update operation.
+* **Disable Profile**: Stops update services and disables automatic background updates.
 
 ---
 
-## 🚀 How to Run Prime Utilities
+## 🚀 How to Run
 
-### Option A: Launch Web Dashboard via PowerShell (Recommended)
-Right-click `Prime-Utilities.ps1` and select **Run with PowerShell** (or run in an elevated PowerShell terminal):
+### 1-Click Online Direct Run (PowerShell Elevated)
 ```powershell
 Set-ExecutionPolicy Unrestricted -Scope Process
 .\Prime-Utilities.ps1
 ```
 
-### Option B: Run Web Dashboard via Node.js
-```bash
-npm start
-```
-Open your web browser and navigate to `http://localhost:3000`.
-
-### Option C: Interactive CLI Mode
+### Run Native WPF Desktop GUI
 ```powershell
-.\Prime-Utilities.ps1 -CLI
+.\Prime-Utilities-WPF.ps1
 ```
 
 ---
 
-## 📁 Project File Map
+## 📁 Repository Structure
 
-* [`index.html`](file:///d:/CPA%20Tools/Prime%20Utilities/index.html) - Main Web Dashboard UI
-* [`style.css`](file:///d:/CPA%20Tools/Prime%20Utilities/style.css) - Dark Glassmorphism Design System
-* [`app.js`](file:///d:/CPA%20Tools/Prime%20Utilities/app.js) - Frontend interactivity, preset logic & script generator
-* [`server.js`](file:///d:/CPA%20Tools/Prime%20Utilities/server.js) - Local HTTP & PowerShell execution bridge server
-* [`Prime-Utilities.ps1`](file:///d:/CPA%20Tools/Prime%20Utilities/Prime-Utilities.ps1) - Master PowerShell launcher script
-* [`scripts/Apply-Tweaks.ps1`](file:///d:/CPA%20Tools/Prime%20Utilities/scripts/Apply-Tweaks.ps1) - Windows debloating & performance engine
-* [`scripts/Install-Apps.ps1`](file:///d:/CPA%20Tools/Prime%20Utilities/scripts/Install-Apps.ps1) - WinGet batch installer engine
-* [`scripts/System-Repairs.ps1`](file:///d:/CPA%20Tools/Prime%20Utilities/scripts/System-Repairs.ps1) - System repairs & network reset engine
-* [`scripts/Manage-Updates.ps1`](file:///d:/CPA%20Tools/Prime%20Utilities/scripts/Manage-Updates.ps1) - Windows Update management engine
+```
+Prime-Utilities/
+├── assets/
+│   ├── prime_utilities_logo.jpg    # Premium App Logo
+│   └── icons/                      # Local Brand Icon Cache
+├── config/
+│   └── applications.json           # Application Database & WinGet Mappings
+├── scripts/
+│   ├── Apply-Tweaks.ps1            # Windows Debloat & Tweak Engine
+│   ├── Install-Apps.ps1            # WinGet Batch Installation Engine
+│   ├── Manage-Updates.ps1          # Windows Update Policy Engine
+│   └── System-Repairs.ps1          # SFC, DISM & Network Repairs Engine
+├── app.js                          # Web Dashboard Logic
+├── index.html                      # Web UI Interface
+├── style.css                       # Modern Dark Theme Styling
+├── server.js                       # Node.js Execution Server
+├── Prime-Utilities.ps1             # Master Terminal Launcher
+└── Prime-Utilities-WPF.ps1         # Native WPF Desktop GUI
+```
 
 ---
 
 ## 🛡️ License & Safety
-Distributed under the MIT License. Always create a System Restore Point before running system-wide modifications (enabled by default in Prime Utilities).
+
+Distributed under the **MIT License**. Always create a System Restore Point before making major system-wide modifications (supported natively inside Prime Utilities).
