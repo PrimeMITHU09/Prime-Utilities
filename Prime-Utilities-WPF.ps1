@@ -143,7 +143,7 @@ $inputXaml = @"
                 <DockPanel>
                     <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
                         <Border Width="30" Height="30" CornerRadius="6" Margin="0,0,10,0" Background="#8B5CF6">
-                            <Image Source="$logoPath" Stretch="UniformToFill">
+                            <Image Name="imgHeaderLogo" Stretch="UniformToFill">
                                 <Image.Clip>
                                     <RectangleGeometry RadiusX="6" RadiusY="6" Rect="0,0,30,30"/>
                                 </Image.Clip>
@@ -600,6 +600,19 @@ $inputXaml = @"
 $reader = [System.Xml.XmlReader]::Create([System.IO.StringReader]::new($inputXaml))
 $window = [System.Windows.Markup.XamlReader]::Load($reader)
 
+# Dynamic Header Logo Loader
+$imgHeaderLogo = $window.FindName("imgHeaderLogo")
+if ($imgHeaderLogo -and (Test-Path $logoPath)) {
+    try {
+        $bitmap = New-Object System.Windows.Media.Imaging.BitmapImage
+        $bitmap.BeginInit()
+        $bitmap.UriSource = New-Object System.Uri((Get-Item $logoPath).FullName, [System.UriKind]::Absolute)
+        $bitmap.CacheOption = [System.Windows.Media.Imaging.BitmapCacheOption]::OnLoad
+        $bitmap.EndInit()
+        $imgHeaderLogo.Source = $bitmap
+    } catch {}
+}
+
 # Null-Safe XAML Element Bindings
 $pnlAppCategories = $window.FindName("pnlAppCategories")
 $txtSelCount = $window.FindName("txtSelCount")
@@ -961,7 +974,7 @@ function Show-AboutDialog {
 
                 <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,14">
                     <Border Width="24" Height="24" CornerRadius="4" Background="#8B5CF6" Margin="0,0,10,0">
-                        <Image Source="$logoPath" Stretch="UniformToFill"/>
+                        <Image Name="imgAboutLogo" Stretch="UniformToFill"/>
                     </Border>
                     <TextBlock Text="WinUtil" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="#F8FAFC"/>
                 </StackPanel>
@@ -980,6 +993,17 @@ function Show-AboutDialog {
 "@
     $r = [System.Xml.XmlReader]::Create([System.IO.StringReader]::new($aboutXaml))
     $aboutWin = [System.Windows.Markup.XamlReader]::Load($r)
+    $imgAboutLogo = $aboutWin.FindName("imgAboutLogo")
+    if ($imgAboutLogo -and (Test-Path $logoPath)) {
+        try {
+            $bm = New-Object System.Windows.Media.Imaging.BitmapImage
+            $bm.BeginInit()
+            $bm.UriSource = New-Object System.Uri((Get-Item $logoPath).FullName, [System.UriKind]::Absolute)
+            $bm.CacheOption = [System.Windows.Media.Imaging.BitmapCacheOption]::OnLoad
+            $bm.EndInit()
+            $imgAboutLogo.Source = $bm
+        } catch {}
+    }
     $btnOk = $aboutWin.FindName("btnAboutOk")
     if ($btnOk) { $btnOk.Add_Click({ $aboutWin.Close() }) }
     $aboutWin.ShowDialog() | Out-Null
@@ -1733,5 +1757,10 @@ if ($btnThemeToggle) {
         }
     })
 }
+
+$window.Topmost = $true
+$window.Activate()
+$window.Focus()
+$window.Topmost = $false
 
 $window.ShowDialog() | Out-Null
